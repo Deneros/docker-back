@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\DocumentoController;
 use App\Http\Controllers\UsuarioController;
+use App\Http\Controllers\DiskController;
 
 /*
 |--------------------------------------------------------------------------
@@ -31,3 +32,8 @@ Route::controller(UsuarioController::class)->group(function () {
     Route::get('/usuario/{id}', 'show');
     Route::get('/usuario/{id}/detalles/{state?}', 'showDetails')->whereIn('state',['Firmado', 'Pendiente', 'Devuelto']);
 });
+
+Route::get('/sended/document/{id}', [DiskController::class ,'downloadObject']);
+// Route::controller(DiskController::class)->group(function(){
+//     Route::get('/')
+// })
