@@ -36,14 +36,14 @@ class DiskController extends Controller
             return response()->json(['error' => 'Error al obtener el contenido del archivo.'], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
 
-        $headers = [
-            'Content-Type' => Storage::mimeType($search_doc),
-            'Content-Disposition' => 'attachment; filename="' . $nombre . '"',
-        ];
+        // $headers = [
+        //     'Content-Type' => Storage::mimeType($search_doc),
+        //     'Content-Disposition' => 'attachment; filename="' . $nombre . '"',
+        // ];
 
         // echo $search_doc;
 
-        return response($content, Response::HTTP_OK, $headers);
+        return response()->json(['document'=>base64_encode($content)], Response::HTTP_OK);
         // $content = Storage::get($search_doc);
         // Storage::put('test.text', 'S3 Testing with laravel');
         // var_dump($content);
