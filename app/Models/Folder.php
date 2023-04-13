@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Carpeta extends Model{
+class Folder extends Model{
 
     protected $table = 'documento';
     protected $primaryKey = 'doc_id';

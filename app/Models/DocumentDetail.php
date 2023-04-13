@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class DetalleDocumento extends Model
+class DocumentDetail extends Model
 {
     protected $table = 'detalledocumento';
     protected $primaryKey = 'det_id';

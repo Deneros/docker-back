@@ -4,9 +4,9 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Documento extends Model
+class Document extends Model
 {
-    protected $table = 'documento';
+    protected $table = 'Document';
     protected $primaryKey = 'doc_id';
     public $timestamps = false;
 

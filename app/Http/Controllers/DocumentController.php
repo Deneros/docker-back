@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Documento;
-use App\Models\DetalleDocumento;
+use App\Models\Document;
+use App\Models\DocumentDetail;
 
-class DocumentoController extends Controller
+class DocumentController extends Controller
 {
     /**
      * Create a new controller instance.
@@ -19,7 +19,7 @@ class DocumentoController extends Controller
 
     public function index()
     {
-        $documentos = DetalleDocumento::select(
+        $documentos = DocumentDetail::select(
             'documento.doc_nombre',
             'documento.doc_fechac',
             'documento.doc_horac',
@@ -81,7 +81,7 @@ class DocumentoController extends Controller
 
     public function show(int $id)
     {
-        return Documento::findOrFail($id);
+        return Document::findOrFail($id);
     }
 
     public function showDetails(int $id)
