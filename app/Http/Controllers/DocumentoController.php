@@ -23,10 +23,13 @@ class DocumentoController extends Controller
             'documento.doc_nombre',
             'documento.doc_fechac',
             'documento.doc_horac',
+            'documento.doc_fecha_f',
+            'documento.doc_hora_f',
             'detalledocumento.det_id',
             'documento.doc_estado',
             'detalledocumento.codigo_verificacion',
             'detalledocumento.det_docume',
+            'detalledocumento.det_nomdes',
             'detalledocumento.det_cordes',
             'detalledocumento.det_firma',
             'usuario.usu_id',
@@ -39,10 +42,11 @@ class DocumentoController extends Controller
             ->get();
 
         $agrupados = $documentos->groupBy('det_docume')->map(function ($item, $key) {
-            $det_cordes = $item->map(function ($detalle) {
+            $destinataries = $item->map(function ($detalle) {
                 return [
+                    'name' => $detalle->det_nomdes,
                     'correo' => $detalle->det_cordes,
-                    'firmado' => $detalle->det_firma
+                    'signed' => $detalle->det_firma
                 ];
             });
 
@@ -59,10 +63,12 @@ class DocumentoController extends Controller
                 'document_name' => $item->first()->doc_nombre,
                 'send_date' => $item->first()->doc_fechac,
                 'send_hour' => $item->first()->doc_horac,
+                'sign_date' => $item->first()->doc_fecha_f,
+                'sign_hour' => $item->first()->doc_hora_f,
                 'state' => $item->first()->doc_estado,
                 'verificacion_code' => $item->first()->codigo_verificacion,
                 'sender' => $sender->toArray(),
-                'destinataries' => $det_cordes->toArray()
+                'destinataries' => $destinataries->toArray()
             ];
         })->values();
 
