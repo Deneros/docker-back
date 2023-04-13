@@ -13,10 +13,6 @@ class UsuarioController extends Controller
      *
      * @return void
      */
-    public function __construct()
-    {
-        //
-    }
 
     public function index(){
         return User::all();
