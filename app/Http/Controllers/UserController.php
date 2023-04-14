@@ -15,7 +15,10 @@ class UserController extends Controller
      */
 
     public function index(){
-        return User::all();
+        // return User::all();
+        return User::join('roles_usuario', 'roles_usuario.id_rol','=','usuario.rol_usuario')
+        ->select('*')
+        ->get();
     }
 
     public function show(int $id){
