@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Document extends Model
 {
-    protected $table = 'Document';
+    protected $table = 'documento';
     protected $primaryKey = 'doc_id';
     public $timestamps = false;
 
@@ -35,6 +35,6 @@ class Document extends Model
 
     public function detalles()
     {
-        return $this->hasMany(DocumentoDetalle::class, 'det_docume', 'doc_id');
+        return $this->hasMany(DocumentDetail::class, 'det_docume', 'doc_id');
     }
 }
