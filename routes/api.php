@@ -26,13 +26,14 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 Route::controller(DocumentController::class)->group(function () {
     Route::get('/document', 'index');
     Route::get('/document/{id}', 'show');
-    Route::get('/document/usuario/{id}/', 'showByUserId');
+    Route::get('/document/user/{id}/', 'showByUserId');
 });
 
 Route::controller(UserController::class)->group(function () {
     Route::get('/user', 'index');
     Route::get('/user/{id}', 'show');
-    Route::get('/user/{id}/detalles/{state?}', 'showDetails')->whereIn('state',['Firmado', 'Pendiente', 'Devuelto']);
+    Route::get('/user/{id}/documents', 'showDetails');
+    // Route::get('/user/{id}/detalles/{state?}', 'showDetails')->whereIn('state',['Firmado', 'Pendiente', 'Devuelto']);
 });
 
 Route::controller(TransactionController::class)->group(function () {
@@ -41,6 +42,7 @@ Route::controller(TransactionController::class)->group(function () {
 
 Route::controller(ProductController::class)->group(function () {
     Route::get('/product', 'index');
+    Route::get('/reports', 'productReports');
 });
 
 
