@@ -4,66 +4,13 @@ namespace App\Http\Controllers;
 
 use App\Models\Product;
 use App\Models\DocumentDetail;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 
 class ProductController extends Controller
 {
     public function index()
     {
-        // $documentos = DocumentDetail::select(
-        //     'documento.doc_nombre',
-        //     'documento.doc_fechac',
-        //     'documento.doc_horac',
-        //     'documento.doc_fecha_f',
-        //     'documento.doc_hora_f',
-        //     'detalledocumento.det_id',
-        //     'documento.doc_estado',
-        //     'detalledocumento.codigo_verificacion',
-        //     'detalledocumento.det_docume',
-        //     'detalledocumento.det_nomdes',
-        //     'detalledocumento.det_cordes',
-        //     'detalledocumento.det_firma',
-        //     'usuario.usu_id',
-        //     'usuario.usu_nombre',
-        //     'usuario.usu_apelli',
-        //     'usuario.usu_email'
-        // )
-        //     ->join('documento', 'documento.doc_id', '=', 'detalledocumento.det_docume')
-        //     ->join('usuario', 'usuario.usu_id', '=', 'documento.doc_usuari')
-        //     ->where('doc_estado','=','Firmado')
-        //     ->get();
-
-        // $agrupados = $documentos->groupBy('det_docume')->map(function ($item, $key) {
-        //     $destinataries = $item->map(function ($detalle) {
-        //         return [
-        //             'name' => $detalle->det_nomdes,
-        //             'correo' => $detalle->det_cordes,
-        //             'signed' => $detalle->det_firma
-        //         ];
-        //     });
-
-        //     $sender = $item->map(function ($detalle) {
-        //         return [
-        //             'name' => $detalle->usu_nombre . ' ' . $detalle->usu_apelli,
-        //             'email' => $detalle->usu_email
-        //         ];
-        //     });
-
-        //     return [
-        //         'id_document' => $key,
-        //         'id_detail_document' => $item->first()->det_id,
-        //         'document_name' => $item->first()->doc_nombre,
-        //         'send_date' => $item->first()->doc_fechac,
-        //         'send_hour' => $item->first()->doc_horac,
-        //         'sign_date' => $item->first()->doc_fecha_f,
-        //         'sign_hour' => $item->first()->doc_hora_f,
-        //         'state' => $item->first()->doc_estado,
-        //         'verificacion_code' => $item->first()->codigo_verificacion,
-        //         'sender' => $sender->toArray(),
-        //         'destinataries' => $destinataries->toArray()
-        //     ];
-        // })->values();
-
         $products = Product::All();
 
         $bought_firms = 0;
@@ -75,10 +22,93 @@ class ProductController extends Controller
         }
 
         $response = [
-            [
-                'bought_firms' => $bought_firms,
-                'used_firms' => $used_firms,
-            ]
+            'bought_firms' => $bought_firms,
+            'used_firms' => $used_firms,
+        ];
+
+        return response()->json($response);
+    }
+
+    public function productReports()
+    {
+        $documentos = DocumentDetail::select(
+            'documento.doc_nombre',
+            'documento.doc_fechac',
+            'documento.doc_horac',
+            'documento.doc_fecha_f',
+            'documento.doc_hora_f',
+            'detalledocumento.det_id',
+            'documento.doc_estado',
+            'detalledocumento.codigo_verificacion',
+            'detalledocumento.det_docume',
+            'detalledocumento.det_nomdes',
+            'detalledocumento.det_cordes',
+            'detalledocumento.det_firma',
+            'usuario.usu_id',
+            'usuario.usu_nombre',
+            'usuario.usu_apelli',
+            'usuario.usu_email'
+        )
+            ->join('documento', 'documento.doc_id', '=', 'detalledocumento.det_docume')
+            ->join('usuario', 'usuario.usu_id', '=', 'documento.doc_usuari')
+            ->get();
+        $senderGroups = $documentos->groupBy('usu_id');
+        $sendersCount = collect();
+
+        foreach ($senderGroups as $senderId => $senderDocuments) {
+            $senderInfo = [
+                'name' => $senderDocuments->first()->usu_nombre . ' ' . $senderDocuments->first()->usu_apelli,
+                'email' => $senderDocuments->first()->usu_email
+            ];
+
+            $sendCount = $senderDocuments->count();
+
+
+            $sendersCount->push([
+                'sender' => $senderInfo,
+                'send_count' => $sendCount
+            ]);
+        }
+
+        $sendersCount = $sendersCount->sortByDesc('send_count');
+
+        $topSenders = $sendersCount->take(5)->values()->all(); // Top 5 remitentes, asegúrese de resetear los índices y convertirlo en un array
+
+        $monthlyCounts = $documentos->groupBy(function ($documento) {
+            return Carbon::parse($documento->doc_fechac)->format('Y-m');
+        })->map(function ($groupedDocs) {
+            return $groupedDocs->count();
+        });
+
+        $monthlyCounts = $monthlyCounts->sortDesc();
+
+        $signedDocumentos = $documentos->filter(function ($documento) {
+            return $documento->doc_estado == 'Firmado';
+        });
+
+        $signedSenderGroups = $signedDocumentos->groupBy('usu_id');
+        $signedSendersCount = collect();
+
+        foreach ($signedSenderGroups as $senderId => $signedSenderDocuments) {
+            $senderInfo = [
+                'name' => $signedSenderDocuments->first()->usu_nombre . ' ' . $signedSenderDocuments->first()->usu_apelli,
+                'email' => $signedSenderDocuments->first()->usu_email
+            ];
+
+            $signedSendCount = $signedSenderDocuments->count();
+
+            $signedSendersCount->push([
+                'sender' => $senderInfo,
+                'send_count' => $signedSendCount
+            ]);
+        }
+
+        $topSignedSenders = $signedSendersCount->sortByDesc('send_count')->take(5)->values()->all();
+
+        $response = [
+            'top_senders' => $topSenders,
+            'top_signed_senders' => $topSignedSenders,
+            'monthly_counts' => $monthlyCounts,
         ];
 
         return response()->json($response);
