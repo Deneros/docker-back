@@ -32,8 +32,9 @@ Route::controller(DocumentController::class)->group(function () {
 Route::controller(UserController::class)->group(function () {
     Route::get('/user', 'index');
     Route::get('/user/{id}', 'show');
-    Route::get('/user/{id}/documents', 'showDetails');
-    // Route::get('/user/{id}/detalles/{state?}', 'showDetails')->whereIn('state',['Firmado', 'Pendiente', 'Devuelto']);
+    Route::get('/user/{id}/details', 'showDetails');
+    Route::get('/user/{id}/documents/{state?}', 'userDocuments')->whereIn('state',['completed', 'pending', 'returned']);
+    // Route::get('/user/{id}/documents/', 'userDocuments');
 });
 
 Route::controller(TransactionController::class)->group(function () {

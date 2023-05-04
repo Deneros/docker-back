@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Models\DocumentDetail;
 use Illuminate\Support\Arr;
 use Illuminate\Http\Request;
 
@@ -16,7 +17,6 @@ class UserController extends Controller
 
     public function index()
     {
-        // return User::all();
         return User::join('roles_usuario', 'roles_usuario.id_rol', '=', 'usuario.rol_usuario')
             ->select('*')
             ->get();
@@ -26,7 +26,7 @@ class UserController extends Controller
     {
         return User::findOrFail($id);
     }
-    // ('documento', 'documento.doc_usuari','=','usuario.usu_id')
+
     public function showDetails(int $id)
     {
 
@@ -49,18 +49,64 @@ class UserController extends Controller
         }, ['total_documents' => 0, 'completed_documents' => 0, 'pending_documents' => 0]);
 
         return response($counts);
-        // $total_documents = count($documentos);
+    }
 
-        // dd(count($cantidad_firmados));
+    public function userDocuments(int $id, String $state)
+    {
+        $states = [
+            'completed' => 'Firmado',
+            'pending' => 'Pendiente',
+            'returned' => 'Devuelto'
+        ];
 
+        $user = User::findOrFail($id);
 
-        // $documentos_firmados = User::join('documento', 'documento.doc_usuari', '=', 'usuario.usu_id')
-        //     ->join('detalledocumento', 'documento.doc_id', '=', 'detalledocumento.det_docume')
-        //     ->select('*')
-        //     ->where('usuario.usu_id', '=', $id)
-        //     ->get();
+        $filteredDocuments = DocumentDetail::select('detalledocumento.det_docume', 'documento.doc_estado')
+            ->join('documento', 'documento.doc_id', '=', 'detalledocumento.det_docume')
+            ->join('usuario', 'usuario.usu_id', '=', 'documento.doc_usuari')
+            ->where('detalledocumento.det_cordes', '=', $user->usu_email)
+            ->where('documento.doc_estado', '=', $states[$state])
+            ->get();
 
-        // var_dump($documentos_firmados);
+        $filteredDocumentIds = $filteredDocuments->pluck('det_docume')->unique();
+
+        $documents = DocumentDetail::select(
+            'documento.doc_nombre',
+            'documento.doc_fechac',
+            'documento.doc_horac',
+            'documento.doc_fecha_f',
+            'documento.doc_hora_f',
+            'detalledocumento.det_id',
+            'documento.doc_estado',
+            'detalledocumento.det_docume',
+            'detalledocumento.det_nomdes',
+            'detalledocumento.det_cordes',
+            'detalledocumento.det_firma',
+        )
+            ->join('documento', 'documento.doc_id', '=', 'detalledocumento.det_docume')
+            ->join('usuario', 'usuario.usu_id', '=', 'documento.doc_usuari')
+            ->whereIn('detalledocumento.det_docume', $filteredDocumentIds)
+            ->get();
+
+        $group = $documents->groupBy('det_docume')->map(function ($item, $key) {
+            $destinataries = $item->pluck('det_cordes')->unique()->implode(', ');
+
+            $firstItem = $item->first();
+            $otherFields = [
+                'id_document' => $key,
+                'id_detail_document' => $firstItem->det_id,
+                'document_name' => $firstItem->doc_nombre,
+                'send_date' => $firstItem->doc_fechac,
+                'send_hour' => $firstItem->doc_horac,
+                'sign_date' => $firstItem->doc_fecha_f,
+                'sign_hour' => $firstItem->doc_hora_f,
+                'state' => $firstItem->doc_estado,
+
+            ];
+            return array_merge($otherFields, ['destinataries' => $destinataries]);
+        })->values();
+
+        return $group;
     }
 
     public function store()
