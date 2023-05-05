@@ -31,10 +31,10 @@ Route::controller(DocumentController::class)->group(function () {
 
 Route::controller(UserController::class)->group(function () {
     Route::get('/user', 'index');
+    Route::get('/user/details', 'showAllUserDetails'); 
     Route::get('/user/{id}', 'show');
     Route::get('/user/{id}/details', 'showDetails');
-    Route::get('/user/{id}/documents/{state?}', 'userDocuments')->whereIn('state',['completed', 'pending', 'returned']);
-    // Route::get('/user/{id}/documents/', 'userDocuments');
+    Route::get('/user/{id}/documents/{state?}', 'userDocuments')->whereIn('state', ['completed', 'pending', 'returned']);
 });
 
 Route::controller(TransactionController::class)->group(function () {
