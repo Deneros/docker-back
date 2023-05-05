@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Document;
 use App\Models\Product;
 use App\Models\DocumentDetail;
 use Carbon\Carbon;
@@ -12,9 +13,12 @@ class ProductController extends Controller
     public function index()
     {
         $products = Product::All();
+        $documents =  Document::where('doc_estado','=','Firmado')->get();
 
         $bought_firms = 0;
         $used_firms = 0;
+
+        // return $documents;
 
         foreach ($products as $product) {
             $bought_firms += $product->total_firmas;
@@ -24,6 +28,7 @@ class ProductController extends Controller
         $response = [
             'bought_firms' => $bought_firms,
             'used_firms' => $used_firms,
+            'total_documents'=>count($documents)
         ];
 
         return response()->json($response);
