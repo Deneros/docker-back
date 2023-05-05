@@ -18,7 +18,7 @@ class DocumentController extends Controller
     }
 
     public function index()
-    {
+    { 
         $documentos = DocumentDetail::select(
             'documento.doc_nombre',
             'documento.doc_fechac',
