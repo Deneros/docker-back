@@ -27,6 +27,31 @@ class UserController extends Controller
         return User::findOrFail($id);
     }
 
+    public function showAllUserDetails()
+    {
+        $documentos = User::join('detalledocumento', 'detalledocumento.det_cordes', '=', 'usuario.usu_email')
+            ->join('documento', 'documento.doc_id', '=', 'detalledocumento.det_docume')
+            ->select('detalledocumento.*', 'documento.*', 'usuario.*')
+            ->get();
+
+        $documentosAgrupados = $documentos->groupBy('usu_id');
+
+        $firmadosPorUsuario = $documentosAgrupados->map(function ($documentosUsuario, $userId) {
+            $cantidadFirmados = $documentosUsuario->reduce(function ($carry, $documento) {
+                return $carry + ($documento->doc_estado == 'Firmado' ? 1 : 0);
+            }, 0);
+
+            $nombreUsuario = $documentosUsuario->first()->usu_nombre.' '.$documentosUsuario->first()->usu_apelli; // Obtén el nombre del usuario
+
+            return [
+                'user_name' => $nombreUsuario,
+                'signed_documents_count' => $cantidadFirmados,
+            ];
+        });
+
+        return response($firmadosPorUsuario->values());
+    }
+
     public function showDetails(int $id)
     {
 
