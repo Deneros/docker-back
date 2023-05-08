@@ -44,6 +44,7 @@ class UserController extends Controller
             $nombreUsuario = $documentosUsuario->first()->usu_nombre.' '.$documentosUsuario->first()->usu_apelli; // Obtén el nombre del usuario
 
             return [
+                'user_id'=> $userId,
                 'user_name' => $nombreUsuario,
                 'signed_documents_count' => $cantidadFirmados,
             ];
