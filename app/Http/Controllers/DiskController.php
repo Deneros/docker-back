@@ -49,4 +49,66 @@ class DiskController extends Controller
         // Storage::put('test.text', 'S3 Testing with laravel');
         // var_dump($content);
     }
+
+    public function downloadObjectAzure(string $id){
+
+        try {
+            $documento = Document::select('doc_nombre', 'doc_ruta', 'doc_estado')->where('doc_id', $id)->firstOrFail();
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Documento no encontrado.'], Response::HTTP_NOT_FOUND);
+        }
+        
+        $estado = strtolower($documento['doc_estado']).'s';
+        $nombre = str_contains($documento['doc_ruta'],'/') ? $documento['doc_nombre'] : $documento['doc_ruta'];
+    
+        $search_doc = "{$estado}/{$nombre}";
+    
+        if (!Storage::has($search_doc)) {
+            return response()->json(['error' => 'Archivo no encontrado.'], Response::HTTP_NOT_FOUND);
+        }
+    
+        try {
+            $content = Storage::read($search_doc);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Error al obtener el contenido del archivo.'], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    
+        $headers = [
+            'Content-Type' => Storage::mimeType($search_doc),
+            'Content-Disposition' => 'attachment; filename="' .  'firmadoc-02122022144806-prueba.pdf' .'"',
+        ];
+    
+        return response($content, Response::HTTP_OK, $headers);
+    }
+
+    public function b64ObjectAzure(string $id){
+
+        try {
+            $documento = Document::select('doc_nombre', 'doc_ruta', 'doc_estado')->where('doc_id', $id)->firstOrFail();
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Documento no encontrado.'], Response::HTTP_NOT_FOUND);
+        }
+        
+        $estado = strtolower($documento['doc_estado']).'s';
+        $nombre = str_contains($documento['doc_ruta'],'/') ? $documento['doc_nombre'] : $documento['doc_ruta'];
+    
+        $search_doc = "{$estado}/{$nombre}";
+    
+        if (!Storage::has($search_doc)) {
+            return response()->json(['error' => 'Archivo no encontrado.'], Response::HTTP_NOT_FOUND);
+        }
+    
+        try {
+            $content = Storage::read($search_doc);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Error al obtener el contenido del archivo.'], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    
+        // $headers = [
+        //     'Content-Type' => Storage::mimeType($search_doc),
+        //     'Content-Disposition' => 'attachment; filename="' .  'firmadoc-02122022144806-prueba.pdf' .'"',
+        // ];
+    
+        return response()->json(['document'=>base64_encode($content)], Response::HTTP_OK);
+    }
 }
