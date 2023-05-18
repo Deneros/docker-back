@@ -47,10 +47,11 @@ Route::controller(ProductController::class)->group(function () {
 });
 
 Route::controller(DiskController::class)->group(function() {
-    Route::get('/sended/document/{id}', 'downloadObjectAzure');
+    Route::get('/sended/document/{id}', 'b64ObjectAzure');
     Route::get('/sended/document/{id}/certificate', 'getStorage');
 });
 
+// Route::get('/sended/document/{id}', [DiskController::class ,'b64ObjectAzure']);
 // Route::controller(DiskController::class)->group(function(){
 //     Route::get('/')
 // })
