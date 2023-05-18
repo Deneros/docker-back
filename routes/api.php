@@ -46,8 +46,11 @@ Route::controller(ProductController::class)->group(function () {
     Route::get('/reports', 'productReports');
 });
 
+Route::controller(DiskController::class)->group(function() {
+    Route::get('/sended/document/{id}', 'downloadObjectAzure');
+    Route::get('/sended/document/{id}/certificate', 'getStorage');
+});
 
-Route::get('/sended/document/{id}', [DiskController::class ,'downloadObjectAzure']);
 // Route::controller(DiskController::class)->group(function(){
 //     Route::get('/')
 // })
