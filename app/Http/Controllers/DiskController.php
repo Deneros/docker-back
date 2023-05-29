@@ -118,6 +118,7 @@ class DiskController extends Controller
 
     public function getStorage(int $id)
     {
+        // return $id;
         if (!Storage::has("certificados/Firmacertificado-{$id}.pdf")) {
             return response()->json(['error' => 'Archivo no encontrado.'], Response::HTTP_NOT_FOUND);
         }
@@ -128,11 +129,6 @@ class DiskController extends Controller
             return response()->json(['error' => 'Error al obtener el contenido del archivo.'], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
 
-        $headers = [
-            'Content-Type' => Storage::mimeType("certificados/Firmacertificado-{$id}.pdf"),
-            'Content-Disposition' => 'attachment; filename="' .  'firmadoc-02122022144806-prueba.pdf' . '"',
-        ];
-
-        return response($content, Response::HTTP_OK, $headers);
+        return response()->json(['document' => base64_encode($content)], Response::HTTP_OK);
     }
 }
