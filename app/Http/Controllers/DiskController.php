@@ -85,7 +85,7 @@ class DiskController extends Controller
 
     public function b64ObjectAzure(string $id)
     {
-        return $id;
+        // return $id;
 
         try {
             $documento = Document::select('doc_nombre', 'doc_ruta', 'doc_estado')->where('doc_id', $id)->firstOrFail();
@@ -118,18 +118,18 @@ class DiskController extends Controller
 
     public function getStorage(int $id)
     {
-        if (!Storage::has("Firmacertificado-{$id}.pdf")) {
+        if (!Storage::has("certificados/Firmacertificado-{$id}.pdf")) {
             return response()->json(['error' => 'Archivo no encontrado.'], Response::HTTP_NOT_FOUND);
         }
 
         try {
-            $content = Storage::read("Firmacertificado-{$id}.pdf");
+            $content = Storage::read("certificados/Firmacertificado-{$id}.pdf");
         } catch (\Exception $e) {
             return response()->json(['error' => 'Error al obtener el contenido del archivo.'], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
 
         $headers = [
-            'Content-Type' => Storage::mimeType("Firmacertificado-{$id}.pdf"),
+            'Content-Type' => Storage::mimeType("certificados/Firmacertificado-{$id}.pdf"),
             'Content-Disposition' => 'attachment; filename="' .  'firmadoc-02122022144806-prueba.pdf' . '"',
         ];
 

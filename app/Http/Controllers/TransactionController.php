@@ -8,6 +8,7 @@ use App\Models\Transaction;
 class TransactionController extends Controller
 {
     public function index(){
-        return Transaction::All();
+        return Transaction::orderBy('StartingDate', 'desc')->get();
+        // StartingDate
     }
 }
