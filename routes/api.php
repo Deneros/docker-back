@@ -39,6 +39,7 @@ Route::controller(UserController::class)->group(function () {
 
 Route::controller(TransactionController::class)->group(function () {
     Route::get('/transactions', 'index');
+    Route::get('/transactions/{id}', 'get');
 });
 
 Route::controller(ProductController::class)->group(function () {
